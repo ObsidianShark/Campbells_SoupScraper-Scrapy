@@ -14,8 +14,7 @@ def remove_unicode(text):
     return text
 
 class SoupSpider(scrapy.Spider):
-    name = "campbells"
-    # allowed_domains = ["campbells.com"]
+    name = "campbells"    
     start_urls = ["https://www.campbells.com/products/"]
     custom_settings = {
         "AUTOTHROTTLE_ENABLED" : True,
@@ -24,17 +23,20 @@ class SoupSpider(scrapy.Spider):
         "DOWNLOAD_DELAY" : 10,
         "FEED_FORMAT" : "csv",
         "FEED_URI" : f"{name}.csv",
-        "ITEM_PIPELINES": {'scrapy.pipelines.images.ImagesPipeline': 1},
-        "IMAGES_STORE": 'YOUR_PATH',             
+        "ITEM_PIPELINES": {
+            'scrapy.pipelines.images.ImagesPipeline': 1,
+            # 'campbells.pipelines.MongoDBPipeline': 2,
+            },
+        "IMAGES_STORE": 'images',             
     }
 
     def parse(self, response):
         for product in response.xpath("//a[@class='csc-cards__item']/@href"):
             yield scrapy.Request(url=product.get(), callback=self.parse_product)
 
-        next_page = response.xpath("//a[@class='next page-numbers']/@href").get()
-        if next_page:
-            yield scrapy.Request(url=next_page, callback=self.parse)
+        # next_page = response.xpath("//a[@class='next page-numbers']/@href").get()
+        # if next_page:
+        #     yield scrapy.Request(url=next_page, callback=self.parse)
 
     def parse_product(self, response):
         product = ItemLoader(item=CampbellsItem(), selector=response)
@@ -45,9 +47,7 @@ class SoupSpider(scrapy.Spider):
         product.image_urls_out = Identity()
 
         product.add_xpath("image_urls","//li[contains(@class, 'product-gallery__item')]/img/@src")
-        product.add_xpath("product_name","//h1[contains(@class, 'product-description__title')]/text()")
-        product.add_xpath("product_description","//div[@itemprop='description']/text()")  
-        product.add_xpath("category","//div[@class='product-description']/p[1]/text()")              
+        product.add_xpath("product_name","//h1[contains(@class, 'product-description__title')]/text()")                     
         
         product.add_value("url", response.request.url)
         product.add_value("scraping_date", datetime.now())
