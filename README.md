@@ -16,8 +16,7 @@ Python 3.10+
 To clone the repository, type the code below in a shell :
 
 ```bash
-  git clone https://github.com/ObsidianShark/Campbells_SoupScraper-Scrapy.git
-  cd campbells
+  git clone https://github.com/ObsidianShark/Campbells_SoupScraper-Scrapy.git  
 ```
 
 To install dependencies, run the command bellow :

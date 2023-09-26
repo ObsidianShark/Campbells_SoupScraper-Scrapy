@@ -2,12 +2,12 @@ import scrapy
 import re
 from campbells.items import CampbellsItem
 from scrapy.loader import ItemLoader
-from pathlib import Path
-from urllib.parse import urljoin
+from scrapy.utils.project import get_project_settings
 
 from itemloaders.processors import MapCompose, TakeFirst, Identity
 from datetime import datetime
 
+IMAGES_DIRECTORY = 'images'
 
 def remove_unicode(text):
     text = re.sub(r"[\n\t]*", "", text)
@@ -21,22 +21,22 @@ class SoupSpider(scrapy.Spider):
         "AUTOTHROTTLE_DEBUG" : True,
         "HTTPCACHE_ENABLED" : True,
         "DOWNLOAD_DELAY" : 10,
-        "FEED_FORMAT" : "csv",
-        "FEED_URI" : f"{name}.csv",
+        "FEEDS": {
+            f"{name}.csv": {"format": "csv"},
+        },        
         "ITEM_PIPELINES": {
-            'scrapy.pipelines.images.ImagesPipeline': 1,
-            # 'campbells.pipelines.MongoDBPipeline': 2,
+            'scrapy.pipelines.images.ImagesPipeline': 1,            
             },
-        "IMAGES_STORE": 'images',             
+        "IMAGES_STORE": IMAGES_DIRECTORY,             
     }
 
     def parse(self, response):
         for product in response.xpath("//a[@class='csc-cards__item']/@href"):
             yield scrapy.Request(url=product.get(), callback=self.parse_product)
 
-        # next_page = response.xpath("//a[@class='next page-numbers']/@href").get()
-        # if next_page:
-        #     yield scrapy.Request(url=next_page, callback=self.parse)
+        next_page = response.xpath("//a[@class='next page-numbers']/@href").get()
+        if next_page:
+            yield scrapy.Request(url=next_page, callback=self.parse)
 
     def parse_product(self, response):
         product = ItemLoader(item=CampbellsItem(), selector=response)
