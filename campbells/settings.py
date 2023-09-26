@@ -6,9 +6,6 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-from dotenv import load_dotenv
-
-load_dotenv()  # take environment variables from .env.
 
 BOT_NAME = "campbells"
 
@@ -94,10 +91,3 @@ ROBOTSTXT_OBEY = True
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
-
-# MongoDB
-
-# MONGODB_SERVER = "localhost"
-# MONGODB_PORT = 27017
-# MONGODB_DB = "campbells"
-# MONGODB_COLLECTION = "soups"
